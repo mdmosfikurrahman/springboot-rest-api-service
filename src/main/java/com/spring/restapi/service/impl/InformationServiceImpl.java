@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,23 +19,39 @@ public class InformationServiceImpl implements InformationService {
     private final InformationRepository repository;
     private final InformationRequestValidator validator;
 
+    private Information buildInformationForCreate(InformationRequest request) {
+        return Information.builder()
+                .name(request.getName())
+                .build();
+    }
+
+    private Information buildInformationForUpdate(Information information, InformationRequest request) {
+        return Information.builder()
+                .id(information.getId())
+                .name(request.getName())
+                .build();
+    }
+
+    private InformationResponse createInformationResponse(String message, Information info) {
+        return InformationResponse.builder()
+                .message(message)
+                .data(info)
+                .build();
+    }
+
     @Override
     public InformationResponse getInformation(Long id) {
         return repository.findById(id)
-                .map(this::createInformationResponseForGet)
-                .orElse(InformationResponse.builder()
-                        .message("Information with ID " + id + " not found.")
-                        .data(null)
-                        .build());
+                .map(info -> createInformationResponse("Information retrieved!", info))
+                .orElseGet(() -> createInformationResponse("Information with ID " + id + " not found.", null));
     }
-
 
     @Override
     public InformationResponse createInformation(InformationRequest request) {
         validator.validate(request);
-        Information information = buildInformation(request);
+        Information information = buildInformationForCreate(request);
         Information savedInformation = repository.save(information);
-        return createInformationResponseForPost(savedInformation);
+        return createInformationResponse("You made a POST request with the following data!", savedInformation);
     }
 
     @Override
@@ -44,7 +59,13 @@ public class InformationServiceImpl implements InformationService {
         validator.validate(request);
         return repository.findById(id)
                 .map(existingInfo -> updateExistingInformation(existingInfo, request))
-                .orElse(null);
+                .orElseGet(() -> createInformationResponse("Information with ID " + id + " not found.", null));
+    }
+
+    private InformationResponse updateExistingInformation(Information existingInfo, InformationRequest request) {
+        Information updatedInformation = buildInformationForUpdate(existingInfo, request);
+        repository.save(updatedInformation);
+        return createInformationResponse("You made a PUT request to update id = " + updatedInformation.getId() + " with the following data!", updatedInformation);
     }
 
     @Override
@@ -52,63 +73,19 @@ public class InformationServiceImpl implements InformationService {
         return repository.findById(id)
                 .map(info -> {
                     repository.deleteById(id);
-                    return InformationResponse.builder()
-                            .message("You made a DELETE request to delete id = " + id + "!")
-                            .data(null)
-                            .build();
+                    return createInformationResponse("You made a DELETE request to delete id = " + id + "!", null);
                 })
-                .orElse(InformationResponse.builder()
-                        .message("Information with ID " + id + " not found.")
-                        .data(null)
-                        .build());
+                .orElseGet(() -> createInformationResponse("Information with ID " + id + " not found.", null));
     }
 
     @Override
     public List<InformationResponse> getAllInformation() {
-        List<Information> informationList = repository.findAll();
-
-        if (informationList.isEmpty()) {
-            return Collections.singletonList(InformationResponse.builder()
-                    .message("No information records found.")
-                    .data(null)
-                    .build());
+        List<Information> allInformation = repository.findAll();
+        if (allInformation.isEmpty()) {
+            return Collections.singletonList(createInformationResponse("No information records found.", null));
         }
-
-        return informationList.stream()
-                .map(this::createInformationResponseForGet)
-                .collect(Collectors.toList());
-    }
-
-
-    private Information buildInformation(InformationRequest request) {
-        return Information.builder()
-                .name(request.getName())
-                .build();
-    }
-
-    private InformationResponse createInformationResponseForGet(Information info) {
-        return InformationResponse.builder()
-                .message("Information retrieved!")
-                .data(info)
-                .build();
-    }
-
-    private InformationResponse createInformationResponseForPost(Information info) {
-        return InformationResponse.builder()
-                .message("You made a POST request with the following data!")
-                .data(info)
-                .build();
-    }
-
-    private InformationResponse updateExistingInformation(Information existingInfo, InformationRequest request) {
-        Information updatedInformation = Information.builder()
-                .id(existingInfo.getId())
-                .name(request.getName())
-                .build();
-        repository.save(updatedInformation);
-        return InformationResponse.builder()
-                .message("You made a PUT request to update id = " + updatedInformation.getId() + " with the following data!")
-                .data(updatedInformation)
-                .build();
+        return allInformation.stream()
+                .map(info -> createInformationResponse("Information retrieved!", info))
+                .toList();
     }
 }
