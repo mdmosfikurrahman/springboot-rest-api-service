@@ -49,11 +49,18 @@ public class InformationServiceImpl implements InformationService {
 
     @Override
     public InformationResponse deleteInformation(Long id) {
-        if (repository.existsById(id)) {
-            repository.deleteById(id);
-            return createInformationResponseForDelete(id);
-        }
-        return null;
+        return repository.findById(id)
+                .map(info -> {
+                    repository.deleteById(id);
+                    return InformationResponse.builder()
+                            .message("You made a DELETE request to delete id = " + id + "!")
+                            .data(null)
+                            .build();
+                })
+                .orElse(InformationResponse.builder()
+                        .message("Information with ID " + id + " not found.")
+                        .data(null)
+                        .build());
     }
 
     @Override
@@ -102,14 +109,6 @@ public class InformationServiceImpl implements InformationService {
         return InformationResponse.builder()
                 .message("You made a PUT request to update id = " + updatedInformation.getId() + " with the following data!")
                 .data(updatedInformation)
-                .build();
-    }
-
-
-    private InformationResponse createInformationResponseForDelete(Long id) {
-        return InformationResponse.builder()
-                .message("You made a DELETE request to delete id = " + id + "!")
-                .data(null)
                 .build();
     }
 }
