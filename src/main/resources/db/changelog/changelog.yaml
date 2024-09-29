@@ -6,3 +6,19 @@ databaseChangeLog:
       changes:
         - sqlFile:
             path: db/changelog/data/create_table_information.sql
+
+  - changeSet:
+      id: create_table_users
+      author: mosfik
+      comment: "This changeset creates Users Table"
+      changes:
+        - sqlFile:
+            path: db/changelog/data/create_table_users.sql
+
+  - changeSet:
+      id: create_table_persons
+      author: mosfik
+      comment: "This changeset creates Persons Table"
+      changes:
+        - sqlFile:
+            path: db/changelog/data/create_table_persons.sql
