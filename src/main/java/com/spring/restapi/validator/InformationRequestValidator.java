@@ -18,7 +18,6 @@ public class InformationRequestValidator {
             errors.put("request", "Request must not be null");
         } else {
             validateName(request.getName(), errors);
-            // Add additional field validations here
         }
 
         if (!errors.isEmpty()) {
@@ -30,9 +29,7 @@ public class InformationRequestValidator {
         if (!StringUtils.hasText(name)) {
             errors.put("name", "Name must not be empty");
         }
-        // You can add more complex validations here (e.g., length, regex)
     }
 
-    // Additional validation methods for other fields can be added here
 }
 

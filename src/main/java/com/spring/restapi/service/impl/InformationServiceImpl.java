@@ -88,4 +88,5 @@ public class InformationServiceImpl implements InformationService {
                 .map(info -> createInformationResponse("Information retrieved!", info))
                 .toList();
     }
+
 }

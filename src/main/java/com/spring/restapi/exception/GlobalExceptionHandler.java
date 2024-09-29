@@ -23,4 +23,5 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleCustomValidationExceptions(ValidationException ex) {
         return new ResponseEntity<>(ex.getErrors(), HttpStatus.BAD_REQUEST);
     }
+
 }
