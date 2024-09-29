@@ -45,26 +45,12 @@ public class InformationServiceImpl implements InformationService {
     }
 
     @Override
-    public InformationResponse patchInformation(Long id, InformationRequest request) {
-        Optional<Information> existingInformation = informationRepository.findById(id);
-        if (existingInformation.isPresent()) {
-            Information information = existingInformation.get();
-            if (request.getName() != null) {
-                information.setName(request.getName());
-            }
-            Information updatedInformation = informationRepository.save(information);
-            return new InformationResponse("You made a PATCH request to update id=" + id + " with the following data!", updatedInformation);
-        }
-        return null;
-    }
-
-    @Override
-    public boolean deleteInformation(Long id) {
+    public InformationResponse deleteInformation(Long id) {
         if (informationRepository.existsById(id)) {
             informationRepository.deleteById(id);
-            return true;
+            return new InformationResponse("You made a DELETE request to delete id=" + id + "!", null);
         }
-        return false;
+        return null;
     }
 
     @Override
@@ -73,4 +59,5 @@ public class InformationServiceImpl implements InformationService {
                 .map(info -> new InformationResponse("Information retrieved!", info))
                 .collect(Collectors.toList());
     }
+
 }

@@ -18,10 +18,7 @@ public class InformationController {
     @GetMapping("/{id}")
     public ResponseEntity<InformationResponse> getInformation(@PathVariable Long id) {
         InformationResponse response = service.getInformation(id);
-        if (response == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(response);
+        return response != null ? ResponseEntity.ok(response) : ResponseEntity.notFound().build();
     }
 
     @PostMapping
@@ -33,32 +30,18 @@ public class InformationController {
     @PutMapping("/{id}")
     public ResponseEntity<InformationResponse> updateInformation(@PathVariable Long id, @RequestBody InformationRequest request) {
         InformationResponse response = service.updateInformation(id, request);
-        if (response == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(response);
-    }
-
-    @PatchMapping("/{id}")
-    public ResponseEntity<InformationResponse> patchInformation(@PathVariable Long id, @RequestBody InformationRequest request) {
-        InformationResponse response = service.patchInformation(id, request);
-        if (response == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(response);
+        return response != null ? ResponseEntity.ok(response) : ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteInformation(@PathVariable Long id) {
-        if (!service.deleteInformation(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok().build();
+    public ResponseEntity<InformationResponse> deleteInformation(@PathVariable Long id) {
+        InformationResponse response = service.deleteInformation(id);
+        return response != null ? ResponseEntity.ok(response) : ResponseEntity.notFound().build();
     }
 
     @GetMapping
     public ResponseEntity<List<InformationResponse>> getAllInformation() {
-        List<InformationResponse> allInformation = service.getAllInformation();
-        return ResponseEntity.ok(allInformation);
+        List<InformationResponse> response = service.getAllInformation();
+        return ResponseEntity.ok(response);
     }
 }
