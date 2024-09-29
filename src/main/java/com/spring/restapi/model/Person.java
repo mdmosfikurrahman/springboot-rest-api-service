@@ -1,23 +1,22 @@
 package com.spring.restapi.model;
 
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 
 @Data
 @Entity
-@SuperBuilder
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "persons")
-@EqualsAndHashCode(callSuper = true)
-public class Person extends User {
+public class Person {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private Long userId;
     private String firstName;
     private String lastName;
 
 }
-
-

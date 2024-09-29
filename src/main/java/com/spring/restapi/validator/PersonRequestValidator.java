@@ -17,14 +17,21 @@ public class PersonRequestValidator {
         if (request == null) {
             errors.put("request", "Request must not be null");
         } else {
+            validateUserId(request.getUserId(), errors);
             validateName(request.getFirstName(), "firstName", errors);
             validateName(request.getLastName(), "lastName", errors);
-            validateUsername(request.getUsername(), errors);
-            validatePassword(request.getPassword(), errors);
         }
 
         if (!errors.isEmpty()) {
             throw new ValidationException(errors);
+        }
+    }
+
+    private void validateUserId(Long userId, Map<String, String> errors) {
+        if (userId == null) {
+            errors.put("userId", "userId" + " must not be null");
+        } else if (userId <= 0) {
+            errors.put("userId", "userId" + " must be a positive number");
         }
     }
 
@@ -34,15 +41,4 @@ public class PersonRequestValidator {
         }
     }
 
-    private void validateUsername(String username, Map<String, String> errors) {
-        if (!StringUtils.hasText(username)) {
-            errors.put("username", "Username must not be empty");
-        }
-    }
-
-    private void validatePassword(String password, Map<String, String> errors) {
-        if (!StringUtils.hasText(password)) {
-            errors.put("password", "Password must not be empty");
-        }
-    }
 }

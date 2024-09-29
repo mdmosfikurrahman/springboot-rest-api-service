@@ -1,9 +1,8 @@
 CREATE TABLE persons
 (
-    id         BIGINT PRIMARY KEY,
-    first_name VARCHAR(255),
-    last_name  VARCHAR(255),
-    username   VARCHAR(255) NOT NULL,
-    password   VARCHAR(255) NOT NULL,
-    CONSTRAINT fk_person_user FOREIGN KEY (id) REFERENCES users (id)
+    id         BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id    BIGINT       NOT NULL UNIQUE,
+    first_name VARCHAR(255) NOT NULL,
+    last_name  VARCHAR(255) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
