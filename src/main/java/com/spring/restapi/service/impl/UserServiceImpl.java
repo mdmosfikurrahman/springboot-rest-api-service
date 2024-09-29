@@ -9,9 +9,6 @@ import com.spring.restapi.validator.UserRequestValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -78,17 +75,6 @@ public class UserServiceImpl implements UserService {
                     return createUserResponse("User with ID " + id + " deleted successfully!", null);
                 })
                 .orElseGet(() -> createUserResponse("User with ID " + id + " not found.", null));
-    }
-
-    @Override
-    public List<UserResponse> getAllUsers() {
-        List<Users> users = repository.findAll();
-        if (users.isEmpty()) {
-            return Collections.singletonList(createUserResponse("No users found.", null));
-        }
-        return users.stream()
-                .map(user -> createUserResponse("User retrieved!", user))
-                .toList();
     }
 
     @Override

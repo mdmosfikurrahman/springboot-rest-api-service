@@ -12,9 +12,6 @@ import com.spring.restapi.validator.PersonRequestValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class PersonServiceImpl implements PersonService {
@@ -101,17 +98,6 @@ public class PersonServiceImpl implements PersonService {
                     return createPersonResponse("Person with ID " + id + " deleted successfully!", null);
                 })
                 .orElseGet(() -> createPersonResponse("Person with ID " + id + " not found.", null));
-    }
-
-    @Override
-    public List<PersonResponse> getAllPersons() {
-        List<Person> allPersons = personRepository.findAll();
-        if (allPersons.isEmpty()) {
-            return Collections.singletonList(createPersonResponse("No persons found.", null));
-        }
-        return allPersons.stream()
-                .map(person -> createPersonResponse("Person retrieved!", person))
-                .toList();
     }
 
 }

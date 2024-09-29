@@ -7,8 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/v1/info")
 @RequiredArgsConstructor
@@ -37,12 +35,6 @@ public class InformationController {
     @DeleteMapping("/{id}")
     public ResponseEntity<InformationResponse> deleteInformation(@PathVariable Long id) {
         InformationResponse response = service.deleteInformation(id);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping
-    public ResponseEntity<List<InformationResponse>> getAllInformation() {
-        List<InformationResponse> response = service.getAllInformation();
         return ResponseEntity.ok(response);
     }
 

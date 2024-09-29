@@ -7,8 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/v1/persons")
 @RequiredArgsConstructor
@@ -40,9 +38,4 @@ public class PersonController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping
-    public ResponseEntity<List<PersonResponse>> getAllPersons() {
-        List<PersonResponse> response = service.getAllPersons();
-        return ResponseEntity.ok(response);
-    }
 }

@@ -9,9 +9,6 @@ import com.spring.restapi.validator.InformationRequestValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class InformationServiceImpl implements InformationService {
@@ -76,17 +73,6 @@ public class InformationServiceImpl implements InformationService {
                     return createInformationResponse("You made a DELETE request to delete id = " + id + "!", null);
                 })
                 .orElseGet(() -> createInformationResponse("Information with ID " + id + " not found.", null));
-    }
-
-    @Override
-    public List<InformationResponse> getAllInformation() {
-        List<Information> allInformation = repository.findAll();
-        if (allInformation.isEmpty()) {
-            return Collections.singletonList(createInformationResponse("No information records found.", null));
-        }
-        return allInformation.stream()
-                .map(info -> createInformationResponse("Information retrieved!", info))
-                .toList();
     }
 
 }
