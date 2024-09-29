@@ -1,15 +1,17 @@
 spring:
   application:
     name: springboot-rest-api-service
+
   datasource:
     url: jdbc:mysql://localhost:3306/multidatahub
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+  liquibase:
+    change-log: classpath:db/changelog/changelog.yaml
+
   jpa:
-    hibernate:
-      ddl-auto: update
     show-sql: false
     open-in-view: false
 

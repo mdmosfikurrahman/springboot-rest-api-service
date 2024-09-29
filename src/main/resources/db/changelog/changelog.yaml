@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: create_table_information
+      author: mosfik
+      comment: "This changeset creates Information Table"
+      changes:
+        - sqlFile:
+            path: db/changelog/data/create_table_information.sql
