@@ -20,6 +20,14 @@ public class PersonServiceImpl implements PersonService {
     private final UserService userService;
     private final PersonRequestValidator validator;
 
+    private static final String PERSON_CREATED_MESSAGE = "Person with ID %s is created.";
+    private static final String PERSON_UPDATED_MESSAGE = "Person with ID %s is updated.";
+    private static final String PERSON_DELETED_MESSAGE = "Person with ID %s is deleted.";
+    private static final String PERSON_RECEIVED_MESSAGE = "Person with ID %s is received.";
+    private static final String PERSON_NOT_FOUND_MESSAGE = "Person with ID %s not found.";
+    private static final String PERSON_EXISTS_MESSAGE = "A person with userId %s already exists.";
+    private static final String USER_NOT_FOUND_MESSAGE = "User with ID %s is not found.";
+
     private Person buildPersonForCreate(PersonRequest request) {
         return Person.builder()
                 .userId(request.getUserId())
@@ -47,14 +55,14 @@ public class PersonServiceImpl implements PersonService {
     private PersonResponse updateExistingPerson(Person existingPerson, PersonRequest request) {
         Person updatedPerson = buildPersonForUpdate(existingPerson, request);
         personRepository.save(updatedPerson);
-        return createPersonResponse("You made a PUT request to update id = " + updatedPerson.getId() + " with the following data!", updatedPerson);
+        return createPersonResponse(String.format(PERSON_UPDATED_MESSAGE, updatedPerson.getId()), updatedPerson);
     }
 
     @Override
     public PersonResponse getPerson(Long id) {
         return personRepository.findById(id)
-                .map(person -> createPersonResponse("Person retrieved!", person))
-                .orElseGet(() -> createPersonResponse("Person with ID " + id + " not found.", null));
+                .map(person -> createPersonResponse(String.format(PERSON_RECEIVED_MESSAGE, id), person))
+                .orElseGet(() -> createPersonResponse(String.format(PERSON_NOT_FOUND_MESSAGE, id), null));
     }
 
     @Override
@@ -62,16 +70,16 @@ public class PersonServiceImpl implements PersonService {
         validator.validate(request);
 
         if (personRepository.existsByUserId(request.getUserId())) {
-            throw new BadRequestException("A person with userId " + request.getUserId() + " already exists.");
+            throw new BadRequestException(String.format(PERSON_EXISTS_MESSAGE, request.getUserId()));
         }
 
         if (!userService.userExists(request.getUserId())) {
-            throw new NotFoundException("User with ID " + request.getUserId() + " does not exist.");
+            throw new NotFoundException(String.format(USER_NOT_FOUND_MESSAGE, request.getUserId()));
         }
 
         Person person = buildPersonForCreate(request);
         Person savedPerson = personRepository.save(person);
-        return createPersonResponse("Person created successfully!", savedPerson);
+        return createPersonResponse(String.format(PERSON_CREATED_MESSAGE, savedPerson.getId()), savedPerson);
     }
 
     @Override
@@ -79,12 +87,10 @@ public class PersonServiceImpl implements PersonService {
         validator.validate(request);
 
         Person existingPerson = personRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Person with ID " + id + " not found."));
+                .orElseThrow(() -> new NotFoundException(String.format(PERSON_NOT_FOUND_MESSAGE, id)));
 
-        if (!existingPerson.getUserId().equals(request.getUserId())) {
-            if (personRepository.existsByUserId(request.getUserId())) {
-                throw new BadRequestException("A person with userId " + request.getUserId() + " already exists.");
-            }
+        if (!existingPerson.getUserId().equals(request.getUserId()) && personRepository.existsByUserId(request.getUserId())) {
+            throw new BadRequestException(String.format(PERSON_EXISTS_MESSAGE, request.getUserId()));
         }
 
         return updateExistingPerson(existingPerson, request);
@@ -95,9 +101,9 @@ public class PersonServiceImpl implements PersonService {
         return personRepository.findById(id)
                 .map(person -> {
                     personRepository.deleteById(id);
-                    return createPersonResponse("Person with ID " + id + " deleted successfully!", null);
+                    return createPersonResponse(String.format(PERSON_DELETED_MESSAGE, id), null);
                 })
-                .orElseGet(() -> createPersonResponse("Person with ID " + id + " not found.", null));
+                .orElseGet(() -> createPersonResponse(String.format(PERSON_NOT_FOUND_MESSAGE, id), null));
     }
 
 }

@@ -16,6 +16,12 @@ public class InformationServiceImpl implements InformationService {
     private final InformationRepository repository;
     private final InformationRequestValidator validator;
 
+    private static final String INFORMATION_CREATED_MESSAGE = "Information with ID %s is created.";
+    private static final String INFORMATION_UPDATED_MESSAGE = "Information with ID %s is updated.";
+    private static final String INFORMATION_DELETED_MESSAGE = "Information with ID %s is deleted.";
+    private static final String INFORMATION_RECEIVED_MESSAGE = "Information with ID %s is received.";
+    private static final String INFORMATION_NOT_FOUND_MESSAGE = "Information with ID %s is not found.";
+
     private Information buildInformationForCreate(InformationRequest request) {
         return Information.builder()
                 .name(request.getName())
@@ -36,11 +42,17 @@ public class InformationServiceImpl implements InformationService {
                 .build();
     }
 
+    private InformationResponse updateExistingInformation(Information existingInfo, InformationRequest request) {
+        Information updatedInformation = buildInformationForUpdate(existingInfo, request);
+        repository.save(updatedInformation);
+        return createInformationResponse(String.format(INFORMATION_UPDATED_MESSAGE, updatedInformation.getId()), updatedInformation);
+    }
+
     @Override
     public InformationResponse getInformation(Long id) {
         return repository.findById(id)
-                .map(info -> createInformationResponse("Information retrieved!", info))
-                .orElseGet(() -> createInformationResponse("Information with ID " + id + " not found.", null));
+                .map(info -> createInformationResponse(String.format(INFORMATION_RECEIVED_MESSAGE, id), info))
+                .orElseGet(() -> createInformationResponse(String.format(INFORMATION_NOT_FOUND_MESSAGE, id), null));
     }
 
     @Override
@@ -48,7 +60,7 @@ public class InformationServiceImpl implements InformationService {
         validator.validate(request);
         Information information = buildInformationForCreate(request);
         Information savedInformation = repository.save(information);
-        return createInformationResponse("You made a POST request with the following data!", savedInformation);
+        return createInformationResponse(String.format(INFORMATION_CREATED_MESSAGE, savedInformation.getId()), savedInformation);
     }
 
     @Override
@@ -56,13 +68,7 @@ public class InformationServiceImpl implements InformationService {
         validator.validate(request);
         return repository.findById(id)
                 .map(existingInfo -> updateExistingInformation(existingInfo, request))
-                .orElseGet(() -> createInformationResponse("Information with ID " + id + " not found.", null));
-    }
-
-    private InformationResponse updateExistingInformation(Information existingInfo, InformationRequest request) {
-        Information updatedInformation = buildInformationForUpdate(existingInfo, request);
-        repository.save(updatedInformation);
-        return createInformationResponse("You made a PUT request to update id = " + updatedInformation.getId() + " with the following data!", updatedInformation);
+                .orElseGet(() -> createInformationResponse(String.format(INFORMATION_NOT_FOUND_MESSAGE, id), null));
     }
 
     @Override
@@ -70,9 +76,9 @@ public class InformationServiceImpl implements InformationService {
         return repository.findById(id)
                 .map(info -> {
                     repository.deleteById(id);
-                    return createInformationResponse("You made a DELETE request to delete id = " + id + "!", null);
+                    return createInformationResponse(String.format(INFORMATION_DELETED_MESSAGE, id), null);
                 })
-                .orElseGet(() -> createInformationResponse("Information with ID " + id + " not found.", null));
+                .orElseGet(() -> createInformationResponse(String.format(INFORMATION_NOT_FOUND_MESSAGE, id), null));
     }
 
 }

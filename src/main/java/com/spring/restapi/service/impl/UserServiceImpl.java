@@ -16,6 +16,12 @@ public class UserServiceImpl implements UserService {
     private final UserRepository repository;
     private final UserRequestValidator validator;
 
+    private static final String USER_CREATED_MESSAGE = "User with ID %s is created.";
+    private static final String USER_UPDATED_MESSAGE = "User with ID %s is updated.";
+    private static final String USER_DELETED_MESSAGE = "User with ID %s is deleted.";
+    private static final String USER_RECEIVED_MESSAGE = "User with ID %s is received.";
+    private static final String USER_NOT_FOUND_MESSAGE = "User with ID %s not found.";
+
     private UserResponse createUserResponse(String message, Users user) {
         return UserResponse.builder()
                 .message(message)
@@ -41,14 +47,14 @@ public class UserServiceImpl implements UserService {
     private UserResponse updateExistingUser(Users existingUser, UserRequest request) {
         Users updatedPerson = buildUserForUpdate(existingUser, request);
         repository.save(updatedPerson);
-        return createUserResponse("You made a PUT request to update id = " + updatedPerson.getId() + " with the following data!", updatedPerson);
+        return createUserResponse(String.format(USER_UPDATED_MESSAGE, updatedPerson.getId()), updatedPerson);
     }
 
     @Override
     public UserResponse getUser(Long id) {
         return repository.findById(id)
-                .map(user -> createUserResponse("User retrieved!", user))
-                .orElseGet(() -> createUserResponse("User with ID " + id + " not found.", null));
+                .map(user -> createUserResponse(String.format(USER_RECEIVED_MESSAGE, id), user))
+                .orElseGet(() -> createUserResponse(String.format(USER_NOT_FOUND_MESSAGE, id), null));
     }
 
     @Override
@@ -56,7 +62,7 @@ public class UserServiceImpl implements UserService {
         validator.validate(request);
         Users user = buildUserForCreate(request);
         Users savedUser = repository.save(user);
-        return createUserResponse("User created successfully!", savedUser);
+        return createUserResponse(String.format(USER_CREATED_MESSAGE, savedUser.getId()), savedUser);
     }
 
     @Override
@@ -64,7 +70,7 @@ public class UserServiceImpl implements UserService {
         validator.validate(request);
         return repository.findById(id)
                 .map(existingUser -> updateExistingUser(existingUser, request))
-                .orElseGet(() -> createUserResponse("User with ID " + id + " not found.", null));
+                .orElseGet(() -> createUserResponse(String.format(USER_NOT_FOUND_MESSAGE, id), null));
     }
 
     @Override
@@ -72,9 +78,9 @@ public class UserServiceImpl implements UserService {
         return repository.findById(id)
                 .map(user -> {
                     repository.deleteById(id);
-                    return createUserResponse("User with ID " + id + " deleted successfully!", null);
+                    return createUserResponse(String.format(USER_DELETED_MESSAGE, id), null);
                 })
-                .orElseGet(() -> createUserResponse("User with ID " + id + " not found.", null));
+                .orElseGet(() -> createUserResponse(String.format(USER_NOT_FOUND_MESSAGE, id), null));
     }
 
     @Override
