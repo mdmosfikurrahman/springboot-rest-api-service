@@ -1,6 +1,7 @@
 package com.spring.restapi.filter;
 
-import com.spring.restapi.jwt.JwtService;
+import com.spring.restapi.service.JwtService;
+import com.spring.restapi.service.TokenService;
 import com.spring.restapi.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -23,6 +24,7 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    private final TokenService tokenService;
     private final ApplicationContext context;
 
     @Override
@@ -34,11 +36,24 @@ public class JwtFilter extends OncePerRequestFilter {
         if (authenticationHeader != null && authenticationHeader.startsWith("Bearer ")) {
             token = authenticationHeader.substring(7);
             username = jwtService.extractUserName(token);
-        }
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
+            if (tokenService.isTokenBlacklisted(token)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Token is blacklisted. Please log in again.");
+                return;
+            }
+
+            if (tokenService.isTokenExpired(token)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Token is expired. Please log in again.");
+                return;
+            }
+        }
+
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = context.getBean(UserService.class).loadUserByUsername(username);
-            if (jwtService.validateToken(token, userDetails)) {
+
+            if (tokenService.validateToken(token, userDetails)) {
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
