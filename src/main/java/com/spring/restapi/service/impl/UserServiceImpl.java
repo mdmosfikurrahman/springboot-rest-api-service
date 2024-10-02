@@ -1,12 +1,22 @@
 package com.spring.restapi.service.impl;
 
 import com.spring.restapi.dto.request.UserRequest;
+import com.spring.restapi.dto.response.JwtTokenResponse;
 import com.spring.restapi.dto.response.UserResponse;
+import com.spring.restapi.jwt.JwtService;
+import com.spring.restapi.model.UserPrincipal;
 import com.spring.restapi.model.Users;
 import com.spring.restapi.repository.UserRepository;
 import com.spring.restapi.service.UserService;
 import com.spring.restapi.validator.UserRequestValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,6 +25,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
     private final UserRequestValidator validator;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
 
     private static final String USER_CREATED_MESSAGE = "User with ID %s is created.";
     private static final String USER_UPDATED_MESSAGE = "User with ID %s is updated.";
@@ -32,7 +43,7 @@ public class UserServiceImpl implements UserService {
     private Users buildUserForCreate(UserRequest request) {
         return Users.builder()
                 .username(request.getUsername())
-                .password(request.getPassword())
+                .password(passwordEncoder.encode(request.getPassword()))
                 .build();
     }
 
@@ -40,7 +51,7 @@ public class UserServiceImpl implements UserService {
         return Users.builder()
                 .id(users.getId())
                 .username(request.getUsername())
-                .password(request.getPassword())
+                .password(passwordEncoder.encode(request.getPassword()))
                 .build();
     }
 
@@ -86,5 +97,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean userExists(Long id) {
         return repository.existsById(id);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Users user = repository.findByUsername(username);
+        if (user == null) {
+            throw new UsernameNotFoundException("user not found");
+        }
+
+        return new UserPrincipal(user);
     }
 }
