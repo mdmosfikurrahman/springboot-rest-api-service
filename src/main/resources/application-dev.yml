@@ -16,7 +16,7 @@ spring:
     enabled: true                                   # Enable Liquibase for development
 
   jpa:
-    show-sql: true                                  # Show SQL queries for debugging in development
+    show-sql: false                                 # Disable SQL query logging
     open-in-view: false                             # Disable open-in-view for better performance
 
   task:
