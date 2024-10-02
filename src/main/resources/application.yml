@@ -2,22 +2,33 @@ spring:
   application:
     name: springboot-rest-api-service
 
+  profiles:
+    active: dev  # Set default profile to 'dev'
+
+  main:
+    allow-bean-definition-overriding: true
+
   datasource:
     url: jdbc:mysql://localhost:3306/multidatahub
-    username: root
-    password: root
+    username: ${DB_USERNAME:root}         # Use environment variable for database username
+    password: ${DB_PASSWORD:root}         # Use environment variable for database password
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   liquibase:
     change-log: classpath:db/changelog/changelog.yaml
+    enabled: true
 
   jpa:
-    show-sql: false
+    show-sql: false                         # Disable showing SQL queries for security
     open-in-view: false
 
+  task:
+    scheduling:
+      pool:
+        size: 10                           # Pool size for scheduling tasks
+
 server:
-  port: 8888
+  port: 8888                                # Server port
 
 jwt:
-  secret: EPDE
-
+  secret: ${JWT_SECRET:EPDE}               # JWT secret with a default value

@@ -10,4 +10,6 @@ public interface TokenService {
 
     boolean validateToken(String token, UserDetails userDetails);
 
+    void cleanUpExpiredTokens();
+
 }

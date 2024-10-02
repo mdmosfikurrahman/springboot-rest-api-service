@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: springboot-rest-api-service
+
+  main:
+    allow-bean-definition-overriding: true
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/multidatahub  # Use the local database for development
+    username: root                                  # Local development username
+    password: root                                  # Local development password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  liquibase:
+    change-log: classpath:db/changelog/changelog.yaml
+    enabled: true                                   # Enable Liquibase for development
+
+  jpa:
+    show-sql: true                                  # Show SQL queries for debugging in development
+    open-in-view: false                             # Disable open-in-view for better performance
+
+  task:
+    scheduling:
+      pool:
+        size: 10                                    # Pool size for scheduling tasks
+
+server:
+  port: 8888                                       # Port for local development
+
+jwt:
+  secret: EPDE                                     # Use a simple secret for local development
