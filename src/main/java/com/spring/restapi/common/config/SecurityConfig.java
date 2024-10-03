@@ -18,6 +18,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -26,6 +28,11 @@ public class SecurityConfig {
     private final UserService userService;
     private final JwtFilter jwtFilter;
 
+    private static final List<String> PUBLIC_API_ENDPOINTS = List.of(
+            "/api/v1/login/**",
+            "/api/v1/info/**",
+            "/api/v1/non-secure/**"
+    );
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -33,7 +40,7 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/api/v1/login/**", "/api/v1/info/**", "/api/v1/non-secure/**").permitAll()
+                        .requestMatchers(PUBLIC_API_ENDPOINTS.toArray(String[]::new)).permitAll()
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults())
