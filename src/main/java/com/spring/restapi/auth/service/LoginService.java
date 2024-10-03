@@ -2,8 +2,9 @@ package com.spring.restapi.auth.service;
 
 import com.spring.restapi.user.dto.request.UserRequest;
 import com.spring.restapi.auth.dto.response.JwtTokenResponse;
+import org.springframework.security.core.Authentication;
 
 public interface LoginService {
-    JwtTokenResponse verify(UserRequest request);
-    void invalidateToken(String token, Long userId);
+    JwtTokenResponse login(UserRequest request);
+    String logout(String authHeader, Authentication authentication);
 }

@@ -2,7 +2,6 @@ package com.spring.restapi.user.service.impl;
 
 import com.spring.restapi.user.dto.request.UserRequest;
 import com.spring.restapi.user.dto.response.UserResponse;
-import com.spring.restapi.user.model.UserPrincipal;
 import com.spring.restapi.user.model.Users;
 import com.spring.restapi.user.repository.UserRepository;
 import com.spring.restapi.user.service.UserService;
@@ -99,7 +98,6 @@ public class UserServiceImpl implements UserService {
         if (user == null) {
             throw new UsernameNotFoundException("user not found");
         }
-
-        return new UserPrincipal(user);
+        return user;
     }
 }

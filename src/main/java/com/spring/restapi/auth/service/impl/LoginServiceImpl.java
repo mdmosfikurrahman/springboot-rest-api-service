@@ -1,19 +1,20 @@
 package com.spring.restapi.auth.service.impl;
 
-import com.spring.restapi.user.dto.request.UserRequest;
 import com.spring.restapi.auth.dto.response.JwtTokenResponse;
 import com.spring.restapi.auth.exception.BadCredentialsException;
 import com.spring.restapi.auth.model.TokenBlackList;
 import com.spring.restapi.auth.repository.TokenBlackListRepository;
 import com.spring.restapi.auth.service.JwtService;
 import com.spring.restapi.auth.service.LoginService;
-import com.spring.restapi.user.model.UserPrincipal;
+import com.spring.restapi.user.dto.request.UserRequest;
+import com.spring.restapi.user.model.Users;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -58,13 +59,13 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public JwtTokenResponse verify(UserRequest request) {
+    public JwtTokenResponse login(UserRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );
 
         if (authentication.isAuthenticated()) {
-            Long userId = ((UserPrincipal) authentication.getPrincipal()).getId();
+            Long userId = ((Users) authentication.getPrincipal()).getId();
             return generateToken(request.getUsername(), userId);
         } else {
             throw new BadCredentialsException("Authentication failed for user: " + request.getUsername());
@@ -76,16 +77,14 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public void invalidateToken(String token, Long userId) {
-        Date expiration = jwtService.extractExpiration(token);
-
-        TokenBlackList tokenBlacklist = TokenBlackList.builder()
-                .token(token)
-                .userId(userId)
-                .invalidatedAt(LocalDateTime.now())
-                .expiresAt(convertToLocalDateTimeViaInstant(expiration))
-                .build();
-
-        repository.save(tokenBlacklist);
+    @Transactional
+    public String logout(String authHeader, Authentication authentication) {
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            Long userId = ((Users) authentication.getPrincipal()).getId();
+            repository.invalidateToken(token, userId, LocalDateTime.now());
+            return "User logged out successfully.";
+        }
+        return "Invalid authorization header.";
     }
 }

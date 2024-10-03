@@ -1,9 +1,8 @@
 package com.spring.restapi.auth.controller;
 
-import com.spring.restapi.user.dto.request.UserRequest;
 import com.spring.restapi.auth.dto.response.JwtTokenResponse;
-import com.spring.restapi.user.model.UserPrincipal;
 import com.spring.restapi.auth.service.LoginService;
+import com.spring.restapi.user.dto.request.UserRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,18 +17,13 @@ public class LoginController {
 
     @PostMapping("/login")
     public JwtTokenResponse login(@RequestBody UserRequest request) {
-        return loginService.verify(request);
+        return loginService.login(request);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout(@RequestHeader("Authorization") String authHeader, Authentication authentication) {
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            Long userId = ((UserPrincipal) authentication.getPrincipal()).getId();
-            loginService.invalidateToken(token, userId);
-            return ResponseEntity.ok("User logged out successfully.");
-        }
-        return ResponseEntity.badRequest().body("Invalid authorization header.");
+        String response = loginService.logout(authHeader, authentication);
+        return ResponseEntity.ok(response);
     }
 
 }

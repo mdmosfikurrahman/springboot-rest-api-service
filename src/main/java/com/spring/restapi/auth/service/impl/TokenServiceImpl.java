@@ -23,7 +23,7 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public boolean isTokenBlacklisted(String token) {
-        return repository.existsByToken(token);
+        return repository.existsByTokenAndInvalidatedAtIsNotNull(token);
     }
 
     @Override
