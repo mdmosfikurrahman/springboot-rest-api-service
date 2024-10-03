@@ -7,6 +7,7 @@ import com.spring.restapi.auth.model.TokenBlackList;
 import com.spring.restapi.auth.repository.TokenBlackListRepository;
 import com.spring.restapi.auth.service.JwtService;
 import com.spring.restapi.auth.service.LoginService;
+import com.spring.restapi.user.model.UserPrincipal;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,11 +29,10 @@ public class LoginServiceImpl implements LoginService {
     private final TokenBlackListRepository repository;
     private final JwtService jwtService;
 
-    public JwtTokenResponse generateToken(String username) {
+    public JwtTokenResponse generateToken(String username, Long userId) {
         Map<String, Object> claims = new HashMap<>();
         Date issuedAt = new Date(System.currentTimeMillis());
         Date expiration = new Date(System.currentTimeMillis() + 60 * 60 * 1000);
-
         String token = Jwts.builder()
                 .claims()
                 .add(claims)
@@ -42,6 +42,15 @@ public class LoginServiceImpl implements LoginService {
                 .and()
                 .signWith(jwtService.getKey())
                 .compact();
+
+        TokenBlackList tokenBlacklist = TokenBlackList.builder()
+                .token(token)
+                .userId(userId)
+                .invalidatedAt(null)
+                .expiresAt(convertToLocalDateTimeViaInstant(expiration))
+                .build();
+
+        repository.save(tokenBlacklist);
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd MMMM, yyyy hh:mm:ss a");
 
@@ -55,7 +64,8 @@ public class LoginServiceImpl implements LoginService {
         );
 
         if (authentication.isAuthenticated()) {
-            return generateToken(request.getUsername());
+            Long userId = ((UserPrincipal) authentication.getPrincipal()).getId();
+            return generateToken(request.getUsername(), userId);
         } else {
             throw new BadCredentialsException("Authentication failed for user: " + request.getUsername());
         }

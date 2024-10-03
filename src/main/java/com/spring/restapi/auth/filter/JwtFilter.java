@@ -3,6 +3,7 @@ package com.spring.restapi.auth.filter;
 import com.spring.restapi.auth.service.JwtService;
 import com.spring.restapi.auth.service.TokenService;
 import com.spring.restapi.user.service.UserService;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,17 +36,24 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if (authenticationHeader != null && authenticationHeader.startsWith("Bearer ")) {
             token = authenticationHeader.substring(7);
-            username = jwtService.extractUserName(token);
 
-            if (tokenService.isTokenBlacklisted(token)) {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("Token is blacklisted. Please log in again.");
-                return;
-            }
+            try {
+                username = jwtService.extractUserName(token);
 
-            if (tokenService.isTokenExpired(token)) {
+                if (tokenService.isTokenBlacklisted(token)) {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write("Token is blacklisted. Please log in again.");
+                    return;
+                }
+
+                if (tokenService.isTokenExpired(token)) {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write("Token is expired. Please log in again.");
+                    return;
+                }
+            } catch (ExpiredJwtException e) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("Token is expired. Please log in again.");
+                response.getWriter().write("Token expired at " + tokenService.extractTokenExpiration(token) + ". Please log in again.");
                 return;
             }
         }
@@ -61,5 +69,6 @@ public class JwtFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request, response);
     }
+
 }
 

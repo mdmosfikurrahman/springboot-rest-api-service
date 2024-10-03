@@ -13,4 +13,5 @@ public interface TokenService {
 
     void cleanUpExpiredTokens();
 
+    String extractTokenExpiration(String token);
 }

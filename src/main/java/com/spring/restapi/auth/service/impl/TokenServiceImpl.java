@@ -10,7 +10,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -27,7 +28,11 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public boolean isTokenExpired(String token) {
-        return jwtService.extractExpiration(token).before(new Date());
+        TokenBlackList tokenBlackList = repository.findByToken(token);
+        if (tokenBlackList != null) {
+            return tokenBlackList.getExpiresAt().isBefore(LocalDateTime.now());
+        }
+        return true;
     }
 
     @Override
@@ -44,7 +49,18 @@ public class TokenServiceImpl implements TokenService {
 
         tokens.stream()
                 .filter(tokenBlackList -> isTokenExpired(tokenBlackList.getToken()))
-                .forEach(repository::delete);
+                .forEach(token -> {
+                    token.setInvalidatedAt(token.getExpiresAt());
+                    repository.save(token);
+                });
+    }
+
+    @Override
+    public String extractTokenExpiration(String token) {
+        TokenBlackList tokenBlackList = repository.findByToken(token);
+        LocalDateTime expirationTime = tokenBlackList.getExpiresAt();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM, yyyy hh:mm:ss a");
+        return expirationTime.format(formatter);
     }
 
 }
