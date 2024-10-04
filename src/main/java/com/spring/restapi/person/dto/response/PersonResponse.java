@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PersonResponse {
 
-    private String message;
-    private Person data;
+    private String firstName;
+    private String lastName;
 
 }

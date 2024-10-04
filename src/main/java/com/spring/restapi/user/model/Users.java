@@ -27,9 +27,12 @@ public class Users implements UserDetails {
     private String username;
     private String password;
 
+    @Convert(converter = RoleConverter.class)
+    private Role role;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority("USER"));
+        return Collections.singleton(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     @Override

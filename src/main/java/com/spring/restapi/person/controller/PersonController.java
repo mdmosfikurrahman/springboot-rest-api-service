@@ -1,10 +1,11 @@
 package com.spring.restapi.person.controller;
 
+import com.spring.restapi.common.response.RestResponse;
 import com.spring.restapi.person.dto.request.PersonRequest;
 import com.spring.restapi.person.dto.response.PersonResponse;
 import com.spring.restapi.person.service.PersonService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,27 +16,26 @@ public class PersonController {
     private final PersonService service;
 
     @GetMapping("/{id}")
-    public ResponseEntity<PersonResponse> getPerson(@PathVariable Long id) {
+    public RestResponse<PersonResponse> getPerson(@PathVariable Long id) {
         PersonResponse response = service.getPerson(id);
-        return ResponseEntity.ok(response);
+        return RestResponse.success(HttpStatus.OK.value(), "Request Successful", response);
     }
 
     @PostMapping
-    public ResponseEntity<PersonResponse> createPerson(@RequestBody PersonRequest request) {
+    public RestResponse<PersonResponse> createPerson(@RequestBody PersonRequest request) {
         PersonResponse response = service.createPerson(request);
-        return ResponseEntity.ok(response);
+        return RestResponse.success(HttpStatus.CREATED.value(), "Person created successfully", response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PersonResponse> updatePerson(@PathVariable Long id, @RequestBody PersonRequest request) {
+    public RestResponse<PersonResponse> updatePerson(@PathVariable Long id, @RequestBody PersonRequest request) {
         PersonResponse response = service.updatePerson(id, request);
-        return ResponseEntity.ok(response);
+        return RestResponse.success(HttpStatus.OK.value(), "Person updated successfully", response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<PersonResponse> deletePerson(@PathVariable Long id) {
-        PersonResponse response = service.deletePerson(id);
-        return ResponseEntity.ok(response);
+    public RestResponse<Void> deletePerson(@PathVariable Long id) {
+        service.deletePerson(id);
+        return RestResponse.success(HttpStatus.OK.value(), "Person deleted successfully", null);
     }
-
 }

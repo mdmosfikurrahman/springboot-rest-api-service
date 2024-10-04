@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class InformationResponse {
 
-    private String message;
     private Information data;
 
 }

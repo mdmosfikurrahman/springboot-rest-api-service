@@ -1,39 +1,39 @@
 package com.spring.restapi.auth.controller;
 
-import org.springframework.http.ResponseEntity;
+import com.spring.restapi.auth.dto.request.ItemRequest;
+import com.spring.restapi.common.response.RestResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/non-secure")
 public class NonSecureController {
+    
+    private static final String SUCCESS_MESSAGE = "Request Successful";
 
-    // 1. GET method mapped directly to the base URL (/api/v1/non-secure)
     @GetMapping
-    public ResponseEntity<String> baseEndpoint() {
-        return ResponseEntity.ok("This is the base of the non-secure API!");
+    public RestResponse<String> baseEndpoint() {
+        return RestResponse.success(HttpStatus.OK.value(), SUCCESS_MESSAGE, "This is the base of the non-secure API!");
     }
 
-    // 2. GET method with additional mapping (/api/v1/non-secure/welcome)
     @GetMapping("/welcome")
-    public ResponseEntity<String> welcome() {
-        return ResponseEntity.ok("Welcome to the Non-Secure API!");
+    public RestResponse<String> welcome() {
+        return RestResponse.success(HttpStatus.OK.value(), SUCCESS_MESSAGE, "Welcome to the Non-Secure API!");
     }
 
-    // 3. GET method with a path variable (/api/v1/non-secure/items/{id})
     @GetMapping("/items/{id}")
-    public ResponseEntity<String> getItemById(@PathVariable String id) {
-        return ResponseEntity.ok("Item ID: " + id + ", Description: Mock Item Description");
+    public RestResponse<String> getItemById(@PathVariable String id) {
+        String description = "Mock Item Description";
+        return RestResponse.success(HttpStatus.OK.value(), SUCCESS_MESSAGE, "Item ID: " + id + ", Description: " + description);
     }
 
-    // 4. POST method that accepts a request body (/api/v1/non-secure/items)
     @PostMapping("/items")
-    public ResponseEntity<String> createItem(@RequestBody String item) {
-        return ResponseEntity.ok("Item created: " + item);
+    public RestResponse<ItemRequest> createItem(@RequestBody ItemRequest itemRequest) {
+        return RestResponse.success(HttpStatus.CREATED.value(), "Item created successfully", itemRequest);
     }
 
-    // 5. GET method with request parameter (/api/v1/non-secure/search?name=example)
     @GetMapping("/search")
-    public ResponseEntity<String> searchItemByName(@RequestParam String name) {
-        return ResponseEntity.ok("Searching for item with name: " + name);
+    public RestResponse<String> searchItemByName(@RequestParam String name) {
+        return RestResponse.success(HttpStatus.OK.value(), SUCCESS_MESSAGE, "Searching for item with name: " + name);
     }
 }

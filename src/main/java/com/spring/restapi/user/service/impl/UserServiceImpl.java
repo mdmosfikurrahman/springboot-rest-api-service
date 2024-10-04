@@ -1,5 +1,6 @@
 package com.spring.restapi.user.service.impl;
 
+import com.spring.restapi.common.exception.NotFoundException;
 import com.spring.restapi.user.dto.request.UserRequest;
 import com.spring.restapi.user.dto.response.UserResponse;
 import com.spring.restapi.user.model.Users;
@@ -20,16 +21,12 @@ public class UserServiceImpl implements UserService {
     private final UserRequestValidator validator;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
 
-    private static final String USER_CREATED_MESSAGE = "User with ID %s is created.";
-    private static final String USER_UPDATED_MESSAGE = "User with ID %s is updated.";
-    private static final String USER_DELETED_MESSAGE = "User with ID %s is deleted.";
-    private static final String USER_RECEIVED_MESSAGE = "User with ID %s is received.";
     private static final String USER_NOT_FOUND_MESSAGE = "User with ID %s not found.";
 
-    private UserResponse createUserResponse(String message, Users user) {
+    private UserResponse createUserResponse(Users user) {
         return UserResponse.builder()
-                .message(message)
-                .data(user)
+                .username(user.getUsername())
+                .role(user.getRole())
                 .build();
     }
 
@@ -37,6 +34,7 @@ public class UserServiceImpl implements UserService {
         return Users.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .role(request.getRole())
                 .build();
     }
 
@@ -45,28 +43,29 @@ public class UserServiceImpl implements UserService {
                 .id(users.getId())
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .role(request.getRole())
                 .build();
     }
 
     private UserResponse updateExistingUser(Users existingUser, UserRequest request) {
         Users updatedPerson = buildUserForUpdate(existingUser, request);
         repository.save(updatedPerson);
-        return createUserResponse(String.format(USER_UPDATED_MESSAGE, updatedPerson.getId()), updatedPerson);
+        return createUserResponse(updatedPerson);
     }
 
     @Override
     public UserResponse getUser(Long id) {
         return repository.findById(id)
-                .map(user -> createUserResponse(String.format(USER_RECEIVED_MESSAGE, id), user))
-                .orElseGet(() -> createUserResponse(String.format(USER_NOT_FOUND_MESSAGE, id), null));
+                .map(this::createUserResponse)
+                .orElseThrow(() -> new NotFoundException(String.format(USER_NOT_FOUND_MESSAGE, id)));
     }
 
     @Override
-    public UserResponse createUser(UserRequest request) {
+    public UserResponse registerUser(UserRequest request) {
         validator.validate(request);
         Users user = buildUserForCreate(request);
         Users savedUser = repository.save(user);
-        return createUserResponse(String.format(USER_CREATED_MESSAGE, savedUser.getId()), savedUser);
+        return createUserResponse(savedUser);
     }
 
     @Override
@@ -74,17 +73,16 @@ public class UserServiceImpl implements UserService {
         validator.validate(request);
         return repository.findById(id)
                 .map(existingUser -> updateExistingUser(existingUser, request))
-                .orElseGet(() -> createUserResponse(String.format(USER_NOT_FOUND_MESSAGE, id), null));
+                .orElseThrow(() -> new NotFoundException(String.format(USER_NOT_FOUND_MESSAGE, id)));
     }
 
     @Override
-    public UserResponse deleteUser(Long id) {
-        return repository.findById(id)
-                .map(user -> {
-                    repository.deleteById(id);
-                    return createUserResponse(String.format(USER_DELETED_MESSAGE, id), null);
-                })
-                .orElseGet(() -> createUserResponse(String.format(USER_NOT_FOUND_MESSAGE, id), null));
+    public void deleteUser(Long id) {
+        repository.findById(id)
+                .ifPresentOrElse(
+                        user -> repository.deleteById(id),
+                        () -> { throw new NotFoundException(String.format(USER_NOT_FOUND_MESSAGE, id)); }
+                );
     }
 
     @Override

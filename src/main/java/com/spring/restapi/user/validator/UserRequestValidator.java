@@ -2,6 +2,7 @@ package com.spring.restapi.user.validator;
 
 import com.spring.restapi.user.dto.request.UserRequest;
 import com.spring.restapi.common.exception.ValidationException;
+import com.spring.restapi.user.model.Role;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -19,6 +20,7 @@ public class UserRequestValidator {
         } else {
             validateUsername(request.getUsername(), errors);
             validatePassword(request.getPassword(), errors);
+            validateRole(request.getRole(), errors);
         }
 
         if (!errors.isEmpty()) {
@@ -35,6 +37,12 @@ public class UserRequestValidator {
     private void validatePassword(String password, Map<String, String> errors) {
         if (!StringUtils.hasText(password)) {
             errors.put("password", "Password must not be empty");
+        }
+    }
+
+    private void validateRole(Role role, Map<String, String> errors) {
+        if (role == null) {
+            errors.put("role", "Role must not be null");
         }
     }
 

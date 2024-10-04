@@ -8,6 +8,6 @@ public interface InformationService {
     InformationResponse getInformation(Long id);
     InformationResponse createInformation(InformationRequest request);
     InformationResponse updateInformation(Long id, InformationRequest request);
-    InformationResponse deleteInformation(Long id);
+    void deleteInformation(Long id);
 
 }

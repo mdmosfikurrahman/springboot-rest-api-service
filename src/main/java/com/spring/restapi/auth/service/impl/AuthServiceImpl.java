@@ -5,7 +5,7 @@ import com.spring.restapi.auth.exception.BadCredentialsException;
 import com.spring.restapi.auth.model.TokenBlackList;
 import com.spring.restapi.auth.repository.TokenBlackListRepository;
 import com.spring.restapi.auth.service.JwtService;
-import com.spring.restapi.auth.service.LoginService;
+import com.spring.restapi.auth.service.AuthService;
 import com.spring.restapi.user.dto.request.UserRequest;
 import com.spring.restapi.user.model.Users;
 import io.jsonwebtoken.Jwts;
@@ -24,7 +24,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class LoginServiceImpl implements LoginService {
+public class AuthServiceImpl implements AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final TokenBlackListRepository repository;
@@ -55,7 +55,7 @@ public class LoginServiceImpl implements LoginService {
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd MMMM, yyyy hh:mm:ss a");
 
-        return new JwtTokenResponse(token, username, formatter.format(issuedAt), formatter.format(expiration));
+        return new JwtTokenResponse(token, formatter.format(issuedAt), formatter.format(expiration));
     }
 
     @Override
