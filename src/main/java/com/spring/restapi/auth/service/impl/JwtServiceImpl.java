@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Date;
 import java.util.function.Function;
 
 @Service
@@ -23,7 +22,7 @@ public class JwtServiceImpl implements JwtService {
     private String secretKeyString;
 
     @Override
-    public String extractUserName(String token) {
+    public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 

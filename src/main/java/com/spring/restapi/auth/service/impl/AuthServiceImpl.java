@@ -27,12 +27,12 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public JwtTokenResponse login(UserRequest request) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
 
         if (authentication.isAuthenticated()) {
             Long userId = ((Users) authentication.getPrincipal()).getId();
-            return tokenService.generateToken(request.getUsername(), userId);
+            return tokenService.generateToken(request.getEmail(), userId);
         } else {
             throw new BadCredentialsException("Authentication failed for user: " + request.getUsername());
         }

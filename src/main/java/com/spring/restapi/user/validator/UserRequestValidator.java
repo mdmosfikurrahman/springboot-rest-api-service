@@ -19,6 +19,7 @@ public class UserRequestValidator {
             errors.put("request", "Request must not be null");
         } else {
             validateUsername(request.getUsername(), errors);
+            validateEmail(request.getEmail(), errors);
             validatePassword(request.getPassword(), errors);
             validateRole(request.getRole(), errors);
         }
@@ -31,6 +32,12 @@ public class UserRequestValidator {
     private void validateUsername(String username, Map<String, String> errors) {
         if (!StringUtils.hasText(username)) {
             errors.put("username", "Username must not be empty");
+        }
+    }
+
+    private void validateEmail(String email, Map<String, String> errors) {
+        if (!StringUtils.hasText(email)) {
+            errors.put("email", "Email must not be empty");
         }
     }
 

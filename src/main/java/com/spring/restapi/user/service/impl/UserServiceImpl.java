@@ -2,6 +2,7 @@ package com.spring.restapi.user.service.impl;
 
 import com.spring.restapi.auth.dto.response.JwtTokenResponse;
 import com.spring.restapi.auth.service.TokenService;
+import com.spring.restapi.common.exception.BadRequestException;
 import com.spring.restapi.common.exception.NotFoundException;
 import com.spring.restapi.user.dto.request.PasswordUpdateRequest;
 import com.spring.restapi.user.dto.request.UserRequest;
@@ -35,36 +36,35 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Users user = repository.findByUsername(username);
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found");
-        }
-        return user;
+    public UserDetails loadUserByUsername(String email) {
+        return repository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     @Override
     public UserResponse registerUser(UserRequest request) {
         validator.validate(request);
-        Users user = buildUserForCreate(request);
-        Users savedUser = repository.save(user);
+        checkIfUserExists(request);
+
+        Users newUser = buildUserForCreate(request);
+        Users savedUser = repository.save(newUser);
         return createUserResponse(savedUser);
     }
 
     @Override
     public UserResponse updateUser(Long id, UserRequest request) {
         validator.validate(request);
-        return repository.findById(id)
-                .map(existingUser -> updateExistingUser(existingUser, request))
-                .orElseThrow(() -> new NotFoundException(String.format(USER_NOT_FOUND_MESSAGE, id)));
+        Users existingUser = getUserById(id);
+
+        Users updatedUser = buildUserForUpdate(existingUser, request);
+        repository.save(updatedUser);
+        return createUserResponse(updatedUser);
     }
 
     @Override
     public JwtTokenResponse updatePassword(Long id, PasswordUpdateRequest request) {
-        Users existingUser = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format(USER_NOT_FOUND_MESSAGE, id)));
-
-        existingUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        Users existingUser = getUserById(id);
+        existingUser.setPassword(encodePassword(request.getNewPassword()));
         repository.save(existingUser);
         return tokenService.generateToken(existingUser.getUsername(), existingUser.getId());
     }
@@ -83,6 +83,22 @@ public class UserServiceImpl implements UserService {
         return repository.existsById(id);
     }
 
+    private void checkIfUserExists(UserRequest request) {
+        repository.findByUsernameOrEmail(request.getUsername(), request.getEmail()).ifPresent(user -> {
+            if (user.getUsername().equals(request.getUsername())) {
+                throw new BadRequestException("Username already exists.");
+            }
+            if (user.getEmail().equals(request.getEmail())) {
+                throw new BadRequestException("Email already exists.");
+            }
+        });
+    }
+
+    private Users getUserById(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format(USER_NOT_FOUND_MESSAGE, id)));
+    }
+
     private UserResponse createUserResponse(Users user) {
         return UserResponse.builder()
                 .username(user.getUsername())
@@ -93,7 +109,8 @@ public class UserServiceImpl implements UserService {
     private Users buildUserForCreate(UserRequest request) {
         return Users.builder()
                 .username(request.getUsername())
-                .password(passwordEncoder.encode(request.getPassword()))
+                .email(request.getEmail())
+                .password(encodePassword(request.getPassword()))
                 .role(request.getRole())
                 .build();
     }
@@ -101,15 +118,14 @@ public class UserServiceImpl implements UserService {
     private Users buildUserForUpdate(Users existingUser, UserRequest request) {
         return Users.builder()
                 .id(existingUser.getId())
-                .username(existingUser.getUsername())
-                .password(passwordEncoder.encode(request.getPassword()))
+                .username(request.getUsername())
+                .email(existingUser.getEmail())
+                .password(encodePassword(request.getPassword()))
                 .role(request.getRole())
                 .build();
     }
 
-    private UserResponse updateExistingUser(Users existingUser, UserRequest request) {
-        Users updatedPerson = buildUserForUpdate(existingUser, request);
-        repository.save(updatedPerson);
-        return createUserResponse(updatedPerson);
+    private String encodePassword(String password) {
+        return passwordEncoder.encode(password);
     }
 }

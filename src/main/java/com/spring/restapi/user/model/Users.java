@@ -25,6 +25,7 @@ public class Users implements UserDetails {
     private Long id;
 
     private String username;
+    private String email;
     private String password;
 
     @Convert(converter = RoleConverter.class)

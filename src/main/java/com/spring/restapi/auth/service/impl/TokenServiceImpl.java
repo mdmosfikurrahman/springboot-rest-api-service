@@ -5,6 +5,7 @@ import com.spring.restapi.auth.model.TokenBlackList;
 import com.spring.restapi.auth.repository.TokenBlackListRepository;
 import com.spring.restapi.auth.service.JwtService;
 import com.spring.restapi.auth.service.TokenService;
+import com.spring.restapi.user.model.Users;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -43,8 +44,8 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public boolean validateToken(String token, UserDetails userDetails) {
-        final String userName = jwtService.extractUserName(token);
-        return (userName.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        final String email = jwtService.extractEmail(token);
+        return (email.equals(((Users) userDetails).getEmail())) && !isTokenExpired(token);
     }
 
     @Scheduled(cron = "0 0 0 * * ?")

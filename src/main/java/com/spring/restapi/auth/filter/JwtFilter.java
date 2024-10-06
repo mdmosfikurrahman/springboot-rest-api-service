@@ -33,13 +33,13 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         String authenticationHeader = request.getHeader("Authorization");
         String token = null;
-        String username = null;
+        String email = null;
 
         if (authenticationHeader != null && authenticationHeader.startsWith("Bearer ")) {
             token = authenticationHeader.substring(7);
 
             try {
-                username = jwtService.extractUserName(token);
+                email = jwtService.extractEmail(token);
 
                 if (tokenService.isTokenBlacklisted(token)) {
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -53,8 +53,8 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         }
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = context.getBean(UserService.class).loadUserByUsername(username);
+        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = context.getBean(UserService.class).loadUserByUsername(email);
 
             if (tokenService.validateToken(token, userDetails)) {
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

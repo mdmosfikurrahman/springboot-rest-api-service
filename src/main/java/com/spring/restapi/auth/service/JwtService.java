@@ -4,7 +4,7 @@ import javax.crypto.SecretKey;
 
 public interface JwtService {
 
-    String extractUserName(String token);
+    String extractEmail(String token);
 
     SecretKey getKey();
 
