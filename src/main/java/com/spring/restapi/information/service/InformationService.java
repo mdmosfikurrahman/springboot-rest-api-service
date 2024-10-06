@@ -1,4 +1,4 @@
-package com.spring.restapi.information.sevice;
+package com.spring.restapi.information.service;
 
 import com.spring.restapi.information.dto.request.InformationRequest;
 import com.spring.restapi.information.dto.response.InformationResponse;

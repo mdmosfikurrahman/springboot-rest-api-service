@@ -1,6 +1,6 @@
 package com.spring.restapi.auth.controller;
 
-import com.spring.restapi.auth.dto.request.UserRequest;
+import com.spring.restapi.auth.dto.request.SecureUserRequest;
 import com.spring.restapi.common.response.RestResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -28,8 +28,8 @@ public class SecureController {
     }
 
     @PostMapping("/users")
-    public RestResponse<UserRequest> createUser(@RequestBody UserRequest userRequest) {
-        return RestResponse.success(HttpStatus.CREATED.value(), "User created successfully", userRequest);
+    public RestResponse<SecureUserRequest> createUser(@RequestBody SecureUserRequest secureUserRequest) {
+        return RestResponse.success(HttpStatus.CREATED.value(), "User created successfully", secureUserRequest);
     }
 
     @GetMapping("/users/search")

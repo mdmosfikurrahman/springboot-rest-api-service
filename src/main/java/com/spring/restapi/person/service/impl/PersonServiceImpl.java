@@ -16,9 +16,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PersonServiceImpl implements PersonService {
 
-    private final PersonRepository personRepository;
+    private final PersonRepository repository;
     private final UserService userService;
     private final PersonRequestValidator validator;
+
     private static final String PERSON_NOT_FOUND_MESSAGE = "Person with ID %s not found.";
     private static final String PERSON_EXISTS_MESSAGE = "A person with userId %s already exists.";
     private static final String USER_NOT_FOUND_MESSAGE = "User with ID %s is not found.";
@@ -49,13 +50,13 @@ public class PersonServiceImpl implements PersonService {
 
     private PersonResponse updateExistingPerson(Person existingPerson, PersonRequest request) {
         Person updatedPerson = buildPersonForUpdate(existingPerson, request);
-        personRepository.save(updatedPerson);
+        repository.save(updatedPerson);
         return createPersonResponse(updatedPerson);
     }
 
     @Override
     public PersonResponse getPerson(Long id) {
-        return personRepository.findById(id)
+        return repository.findById(id)
                 .map(this::createPersonResponse)
                 .orElseThrow(() -> new NotFoundException(String.format(PERSON_NOT_FOUND_MESSAGE, id)));
     }
@@ -64,7 +65,7 @@ public class PersonServiceImpl implements PersonService {
     public PersonResponse createPerson(PersonRequest request) {
         validator.validate(request);
 
-        if (personRepository.existsByUserId(request.getUserId())) {
+        if (repository.existsByUserId(request.getUserId())) {
             throw new BadRequestException(String.format(PERSON_EXISTS_MESSAGE, request.getUserId()));
         }
 
@@ -73,7 +74,7 @@ public class PersonServiceImpl implements PersonService {
         }
 
         Person person = buildPersonForCreate(request);
-        Person savedPerson = personRepository.save(person);
+        Person savedPerson = repository.save(person);
         return createPersonResponse(savedPerson);
     }
 
@@ -81,10 +82,10 @@ public class PersonServiceImpl implements PersonService {
     public PersonResponse updatePerson(Long id, PersonRequest request) {
         validator.validate(request);
 
-        Person existingPerson = personRepository.findById(id)
+        Person existingPerson = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format(PERSON_NOT_FOUND_MESSAGE, id)));
 
-        if (!existingPerson.getUserId().equals(request.getUserId()) && personRepository.existsByUserId(request.getUserId())) {
+        if (!existingPerson.getUserId().equals(request.getUserId()) && repository.existsByUserId(request.getUserId())) {
             throw new BadRequestException(String.format(PERSON_EXISTS_MESSAGE, request.getUserId()));
         }
 
@@ -93,12 +94,11 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public void deletePerson(Long id) {
-        personRepository.findById(id)
-                .map(person -> {
-                    personRepository.deleteById(id);
-                    return createPersonResponse(null);
-                })
-                .orElseGet(() -> createPersonResponse(null));
+        repository.findById(id)
+                .ifPresentOrElse(
+                        person -> repository.deleteById(id),
+                        () -> { throw new NotFoundException(String.format(PERSON_NOT_FOUND_MESSAGE, id)); }
+                );
     }
 
 }

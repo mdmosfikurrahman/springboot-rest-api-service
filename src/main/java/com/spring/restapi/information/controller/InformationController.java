@@ -3,7 +3,7 @@ package com.spring.restapi.information.controller;
 import com.spring.restapi.common.response.RestResponse;
 import com.spring.restapi.information.dto.request.InformationRequest;
 import com.spring.restapi.information.dto.response.InformationResponse;
-import com.spring.restapi.information.sevice.InformationService;
+import com.spring.restapi.information.service.InformationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;

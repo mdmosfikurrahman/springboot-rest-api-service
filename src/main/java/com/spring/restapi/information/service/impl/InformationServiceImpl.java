@@ -1,10 +1,11 @@
-package com.spring.restapi.information.sevice.impl;
+package com.spring.restapi.information.service.impl;
 
+import com.spring.restapi.common.exception.NotFoundException;
 import com.spring.restapi.information.dto.request.InformationRequest;
 import com.spring.restapi.information.dto.response.InformationResponse;
 import com.spring.restapi.information.model.Information;
 import com.spring.restapi.information.repository.InformationRepository;
-import com.spring.restapi.information.sevice.InformationService;
+import com.spring.restapi.information.service.InformationService;
 import com.spring.restapi.information.validator.InformationRequestValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,8 @@ public class InformationServiceImpl implements InformationService {
 
     private final InformationRepository repository;
     private final InformationRequestValidator validator;
+
+    private static final String INFORMATION_NOT_FOUND_MESSAGE = "Information with ID %s not found.";
 
     private Information buildInformationForCreate(InformationRequest request) {
         return Information.builder()
@@ -45,7 +48,7 @@ public class InformationServiceImpl implements InformationService {
     public InformationResponse getInformation(Long id) {
         return repository.findById(id)
                 .map(this::createInformationResponse)
-                .orElseGet(() -> createInformationResponse(null));
+                .orElseThrow(() -> new NotFoundException(String.format(INFORMATION_NOT_FOUND_MESSAGE, id)));
     }
 
     @Override
@@ -61,17 +64,16 @@ public class InformationServiceImpl implements InformationService {
         validator.validate(request);
         return repository.findById(id)
                 .map(existingInfo -> updateExistingInformation(existingInfo, request))
-                .orElseGet(() -> createInformationResponse(null));
+                .orElseThrow(() -> new NotFoundException(String.format(INFORMATION_NOT_FOUND_MESSAGE, id)));
     }
 
     @Override
     public void deleteInformation(Long id) {
         repository.findById(id)
-                .map(info -> {
-                    repository.deleteById(id);
-                    return createInformationResponse(null);
-                })
-                .orElseGet(() -> createInformationResponse(null));
+                .ifPresentOrElse(
+                        information -> repository.deleteById(id),
+                        () -> { throw new NotFoundException(String.format(INFORMATION_NOT_FOUND_MESSAGE, id)); }
+                );
     }
 
 }
