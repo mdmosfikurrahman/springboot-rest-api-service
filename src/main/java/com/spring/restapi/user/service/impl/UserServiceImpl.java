@@ -27,41 +27,20 @@ public class UserServiceImpl implements UserService {
 
     private static final String USER_NOT_FOUND_MESSAGE = "User with ID %s not found.";
 
-    private UserResponse createUserResponse(Users user) {
-        return UserResponse.builder()
-                .username(user.getUsername())
-                .role(user.getRole())
-                .build();
-    }
-
-    private Users buildUserForCreate(UserRequest request) {
-        return Users.builder()
-                .username(request.getUsername())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(request.getRole())
-                .build();
-    }
-
-    private Users buildUserForUpdate(Users users, UserRequest request) {
-        return Users.builder()
-                .id(users.getId())
-                .username(request.getUsername())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(request.getRole())
-                .build();
-    }
-
-    private UserResponse updateExistingUser(Users existingUser, UserRequest request) {
-        Users updatedPerson = buildUserForUpdate(existingUser, request);
-        repository.save(updatedPerson);
-        return createUserResponse(updatedPerson);
-    }
-
     @Override
     public UserResponse getUser(Long id) {
         return repository.findById(id)
                 .map(this::createUserResponse)
                 .orElseThrow(() -> new NotFoundException(String.format(USER_NOT_FOUND_MESSAGE, id)));
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Users user = repository.findByUsername(username);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found");
+        }
+        return user;
     }
 
     @Override
@@ -81,6 +60,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public JwtTokenResponse updatePassword(Long id, PasswordUpdateRequest request) {
+        Users existingUser = repository.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format(USER_NOT_FOUND_MESSAGE, id)));
+
+        existingUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        repository.save(existingUser);
+        return tokenService.generateToken(existingUser.getUsername(), existingUser.getId());
+    }
+
+    @Override
     public void deleteUser(Long id) {
         repository.findById(id)
                 .ifPresentOrElse(
@@ -94,22 +83,33 @@ public class UserServiceImpl implements UserService {
         return repository.existsById(id);
     }
 
-    @Override
-    public JwtTokenResponse updatePassword(Long id, PasswordUpdateRequest request) {
-        Users existingUser = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format(USER_NOT_FOUND_MESSAGE, id)));
-
-        existingUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        repository.save(existingUser);
-        return tokenService.generateToken(existingUser.getUsername(), existingUser.getId());
+    private UserResponse createUserResponse(Users user) {
+        return UserResponse.builder()
+                .username(user.getUsername())
+                .role(user.getRole())
+                .build();
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Users user = repository.findByUsername(username);
-        if (user == null) {
-            throw new UsernameNotFoundException("user not found");
-        }
-        return user;
+    private Users buildUserForCreate(UserRequest request) {
+        return Users.builder()
+                .username(request.getUsername())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(request.getRole())
+                .build();
+    }
+
+    private Users buildUserForUpdate(Users existingUser, UserRequest request) {
+        return Users.builder()
+                .id(existingUser.getId())
+                .username(existingUser.getUsername())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(request.getRole())
+                .build();
+    }
+
+    private UserResponse updateExistingUser(Users existingUser, UserRequest request) {
+        Users updatedPerson = buildUserForUpdate(existingUser, request);
+        repository.save(updatedPerson);
+        return createUserResponse(updatedPerson);
     }
 }

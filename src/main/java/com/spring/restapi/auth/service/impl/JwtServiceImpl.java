@@ -28,11 +28,6 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
-    }
-
-    @Override
     public SecretKey getKey() {
         byte[] keyBytes = hashSecretKey(secretKeyString);
         return Keys.hmacShaKeyFor(keyBytes);
