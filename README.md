@@ -144,10 +144,6 @@ Use Postman to test the API by importing the collection provided in `SpringBoot 
 
 For all secure endpoints, a JWT token obtained from the `/login` API must be included in the `Authorization` header as a Bearer token.
 
-### Example Postman Collection
-
-The complete list of available API endpoints can be found in the provided Postman collection: `SpringBoot Rest API Service.postman_collection.json`.
-
 ### Testing
 
 Run the following command to execute unit tests:
