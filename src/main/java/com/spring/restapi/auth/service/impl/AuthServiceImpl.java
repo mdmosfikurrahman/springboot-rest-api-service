@@ -1,11 +1,11 @@
 package com.spring.restapi.auth.service.impl;
 
+import com.spring.restapi.auth.dto.request.LoginRequest;
 import com.spring.restapi.auth.dto.response.JwtTokenResponse;
 import com.spring.restapi.auth.exception.BadCredentialsException;
 import com.spring.restapi.auth.repository.TokenBlackListRepository;
 import com.spring.restapi.auth.service.AuthService;
 import com.spring.restapi.auth.service.TokenService;
-import com.spring.restapi.user.dto.request.UserRequest;
 import com.spring.restapi.user.model.Users;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,7 +25,7 @@ public class AuthServiceImpl implements AuthService {
     private final TokenService tokenService;
 
     @Override
-    public JwtTokenResponse login(UserRequest request) {
+    public JwtTokenResponse login(LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
@@ -34,7 +34,7 @@ public class AuthServiceImpl implements AuthService {
             Long userId = ((Users) authentication.getPrincipal()).getId();
             return tokenService.generateToken(request.getEmail(), userId);
         } else {
-            throw new BadCredentialsException("Authentication failed for user: " + request.getUsername());
+            throw new BadCredentialsException("Authentication failed for " + request.getEmail());
         }
     }
 
