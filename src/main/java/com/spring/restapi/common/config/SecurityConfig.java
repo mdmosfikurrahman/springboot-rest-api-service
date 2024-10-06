@@ -30,55 +30,55 @@ public class SecurityConfig {
     private final JwtFilter jwtFilter;
 
     private static final List<String> PUBLIC_API_ENDPOINTS = List.of(
-            "/api/v1/login/**",
-            "/api/v1/info/**",
-            "/api/v1/non-secure/**",
-            "/api/v1/users/register/**"
+            "/auth/login/**",
+            "/info/**",
+            "/non-secure/**",
+            "/users/register/**"
     );
 
     private static final List<String> ADMIN_API_ENDPOINTS = List.of(
-            "/api/v1/admin/**",
-            "/api/v1/user/**"
+            "/admin/**",
+            "/user/**"
     );
 
     private static final List<String> HR_MANAGER_API_ENDPOINTS = List.of(
-            "/api/v1/hr/**"
+            "/hr/**"
     );
 
     private static final List<String> FINANCE_MANAGER_API_ENDPOINTS = List.of(
-            "/api/v1/finance/**"
+            "/finance/**"
     );
 
     private static final List<String> INVENTORY_MANAGER_API_ENDPOINTS = List.of(
-            "/api/v1/inventory/**"
+            "/inventory/**"
     );
 
     private static final List<String> SALES_MANAGER_API_ENDPOINTS = List.of(
-            "/api/v1/sales/**"
+            "/sales/**"
     );
 
     private static final List<String> MANUFACTURING_MANAGER_API_ENDPOINTS = List.of(
-            "/api/v1/manufacturing/**"
+            "/manufacturing/**"
     );
 
     private static final List<String> PROJECT_MANAGER_API_ENDPOINTS = List.of(
-            "/api/v1/projects/**"
+            "/projects/**"
     );
 
     private static final List<String> CUSTOMER_SUPPORT_API_ENDPOINTS = List.of(
-            "/api/v1/support/**"
+            "/support/**"
     );
 
     private static final List<String> PROCUREMENT_MANAGER_API_ENDPOINTS = List.of(
-            "/api/v1/procurement/**"
+            "/procurement/**"
     );
 
     private static final List<String> IT_ADMIN_API_ENDPOINTS = List.of(
-            "/api/v1/it/**"
+            "/it/**"
     );
 
     private static final List<String> USER_API_ENDPOINTS = List.of(
-            "/api/v1/user/**"
+            "/user/**"
     );
 
     @Bean

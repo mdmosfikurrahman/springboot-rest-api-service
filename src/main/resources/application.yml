@@ -26,7 +26,9 @@ spring:
 
 server:
   port: 8888
+  servlet:
+    context-path: /api/v1
 
 logging:
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} | %highlight(%level) | [%file:%line] - %msg%n"
+    console: "%d{yyyy-MM-dd hh:mm:ss a} | %highlight(%level) | [%file:%line] - %msg%n"

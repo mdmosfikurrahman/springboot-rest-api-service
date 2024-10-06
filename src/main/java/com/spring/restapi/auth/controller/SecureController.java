@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/secure")
+@RequestMapping("/secure")
 public class SecureController {
 
     private static final String SUCCESS_MESSAGE = "Request Successful";

@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/non-secure")
+@RequestMapping("/non-secure")
 public class NonSecureController {
 
     private static final String SUCCESS_MESSAGE = "Request Successful";

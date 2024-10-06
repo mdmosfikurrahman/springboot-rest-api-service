@@ -70,9 +70,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse updateUser(Long id, UserRequest request) {
-        validator.validate(request);
         return repository.findById(id)
-                .map(existingUser -> updateExistingUser(existingUser, request))
+                .map(existingUser -> {
+                    validator.validate(request, existingUser);
+                    return updateExistingUser(existingUser, request);
+                })
                 .orElseThrow(() -> new NotFoundException(String.format(USER_NOT_FOUND_MESSAGE, id)));
     }
 
