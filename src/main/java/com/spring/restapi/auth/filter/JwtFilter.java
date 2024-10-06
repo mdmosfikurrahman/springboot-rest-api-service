@@ -2,6 +2,7 @@ package com.spring.restapi.auth.filter;
 
 import com.spring.restapi.auth.service.JwtService;
 import com.spring.restapi.auth.service.TokenService;
+import com.spring.restapi.common.response.RestResponse;
 import com.spring.restapi.user.service.UserService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -42,18 +43,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
                 if (tokenService.isTokenBlacklisted(token)) {
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.getWriter().write("Token is blacklisted. Please log in again.");
-                    return;
-                }
-
-                if (tokenService.isTokenExpired(token)) {
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.getWriter().write("Token is expired. Please log in again.");
+                    writeResponse(response, RestResponse.error(HttpServletResponse.SC_UNAUTHORIZED, "Please log in again.", "Token is blacklisted."));
                     return;
                 }
             } catch (ExpiredJwtException e) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("Token expired at " + tokenService.extractTokenExpiration(token) + ". Please log in again.");
+                writeResponse(response, RestResponse.error(HttpServletResponse.SC_UNAUTHORIZED, "Please log in again.", "Token expired at " + tokenService.extractTokenExpiration(token)));
                 return;
             }
         }
@@ -70,5 +65,14 @@ public class JwtFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-}
+    private void writeResponse(HttpServletResponse response, RestResponse<?> restResponse) throws IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        String jsonResponse = restResponse.toJson();
+        try (var writer = response.getWriter()) {
+            writer.write(jsonResponse);
+            writer.flush();
+        }
+    }
 
+}
