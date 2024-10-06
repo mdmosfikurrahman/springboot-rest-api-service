@@ -1,7 +1,7 @@
 package com.spring.restapi.user.service.impl;
 
 import com.spring.restapi.auth.dto.response.JwtTokenResponse;
-import com.spring.restapi.auth.service.AuthService;
+import com.spring.restapi.auth.service.TokenService;
 import com.spring.restapi.common.exception.NotFoundException;
 import com.spring.restapi.user.dto.request.PasswordUpdateRequest;
 import com.spring.restapi.user.dto.request.UserRequest;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final AuthService authService;
+    private final TokenService tokenService;
     private final UserRepository repository;
     private final UserRequestValidator validator;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
@@ -99,15 +99,10 @@ public class UserServiceImpl implements UserService {
         Users existingUser = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format(USER_NOT_FOUND_MESSAGE, id)));
 
-        if (!passwordEncoder.matches(request.getOldPassword(), existingUser.getPassword())) {
-            throw new IllegalArgumentException("Old password is incorrect.");
-        }
-
         existingUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
         repository.save(existingUser);
-        return authService.generateToken(existingUser.getUsername(), existingUser.getId());
+        return tokenService.generateToken(existingUser.getUsername(), existingUser.getId());
     }
-
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
