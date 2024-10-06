@@ -38,7 +38,8 @@ public class SecurityConfig {
 
     private static final List<String> ADMIN_API_ENDPOINTS = List.of(
             "/admin/**",
-            "/user/**"
+            "/user/**",
+            "/users/{id}"
     );
 
     private static final List<String> HR_MANAGER_API_ENDPOINTS = List.of(

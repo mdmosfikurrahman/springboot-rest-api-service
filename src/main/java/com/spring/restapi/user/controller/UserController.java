@@ -1,6 +1,8 @@
 package com.spring.restapi.user.controller;
 
+import com.spring.restapi.auth.dto.response.JwtTokenResponse;
 import com.spring.restapi.common.response.RestResponse;
+import com.spring.restapi.user.dto.request.PasswordUpdateRequest;
 import com.spring.restapi.user.dto.request.UserRequest;
 import com.spring.restapi.user.dto.response.UserResponse;
 import com.spring.restapi.user.service.UserService;
@@ -32,6 +34,13 @@ public class UserController {
         UserResponse response = service.updateUser(id, request);
         return RestResponse.success(HttpStatus.OK.value(), "User updated successfully", response);
     }
+
+    @PostMapping("/update-password/{id}")
+    public RestResponse<JwtTokenResponse> updatePassword(@PathVariable Long id, @RequestBody PasswordUpdateRequest request) {
+        JwtTokenResponse response = service.updatePassword(id, request);
+        return RestResponse.success(HttpStatus.OK.value(), "Password updated successfully", response);
+    }
+
 
     @DeleteMapping("/{id}")
     public RestResponse<Void> deleteUser(@PathVariable Long id) {

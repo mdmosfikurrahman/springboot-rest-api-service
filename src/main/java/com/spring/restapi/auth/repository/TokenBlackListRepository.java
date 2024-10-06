@@ -17,4 +17,8 @@ public interface TokenBlackListRepository extends JpaRepository<TokenBlackList, 
     @Modifying
     @Query("UPDATE TokenBlackList t SET t.invalidatedAt = :invalidatedAt WHERE t.token = :token AND t.userId = :userId AND t.invalidatedAt IS NULL")
     void invalidateToken(@Param("token") String token, @Param("userId") Long userId, @Param("invalidatedAt") LocalDateTime invalidatedAt);
+
+    @Query("SELECT t FROM TokenBlackList t WHERE t.userId = :userId AND t.invalidatedAt IS NULL")
+    TokenBlackList findByUserIdAndInvalidatedAtIsNull(@Param("userId") Long userId);
+
 }

@@ -7,4 +7,5 @@ import org.springframework.security.core.Authentication;
 public interface AuthService {
     JwtTokenResponse login(UserRequest request);
     String logout(String authHeader, Authentication authentication);
+    JwtTokenResponse generateToken(String username, Long userId);
 }

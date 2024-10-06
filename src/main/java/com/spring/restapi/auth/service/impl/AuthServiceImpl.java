@@ -30,7 +30,14 @@ public class AuthServiceImpl implements AuthService {
     private final TokenBlackListRepository repository;
     private final JwtService jwtService;
 
+    @Override
     public JwtTokenResponse generateToken(String username, Long userId) {
+        TokenBlackList existingToken = repository.findByUserIdAndInvalidatedAtIsNull(userId);
+
+        if (existingToken != null) {
+            repository.invalidateToken(existingToken.getToken(), userId, LocalDateTime.now());
+        }
+
         Map<String, Object> claims = new HashMap<>();
         Date issuedAt = new Date(System.currentTimeMillis());
         Date expiration = new Date(System.currentTimeMillis() + 60 * 60 * 1000);
