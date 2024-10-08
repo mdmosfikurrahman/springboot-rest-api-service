@@ -2,6 +2,12 @@ package com.spring.restapi.user.model;
 
 import lombok.Getter;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.Collections;
+
+
 @Getter
 public enum Role {
     ADMIN(1L),
@@ -18,16 +24,19 @@ public enum Role {
 
     private final Long value;
 
+    private static final Map<Long, Role> ROLE_MAP = Collections.unmodifiableMap(
+            Stream.of(Role.values()).collect(Collectors.toMap(Role::getValue, role -> role))
+    );
+
     Role(Long value) {
         this.value = value;
     }
 
     public static Role fromValue(Long value) {
-        for (Role role : Role.values()) {
-            if (role.getValue().equals(value)) {
-                return role;
-            }
+        Role role = ROLE_MAP.get(value);
+        if (role == null) {
+            throw new IllegalArgumentException("Unknown role value: " + value);
         }
-        throw new IllegalArgumentException("Unknown role value: " + value);
+        return role;
     }
 }
