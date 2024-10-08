@@ -26,14 +26,14 @@ public class LoginRequestValidator {
         }
     }
 
-    private void validateEmail(String fieldName, Map<String, String> errors) {
-        if (!StringUtils.hasText(fieldName)) {
+    private void validateEmail(String email, Map<String, String> errors) {
+        if (!StringUtils.hasText(email)) {
             errors.put("email", "Email must not be empty");
         }
     }
 
-    private void validatePassword(String fieldName, Map<String, String> errors) {
-        if (!StringUtils.hasText(fieldName)) {
+    private void validatePassword(String password, Map<String, String> errors) {
+        if (!StringUtils.hasText(password)) {
             errors.put("password", "Password must not be empty");
         }
     }
