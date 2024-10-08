@@ -27,4 +27,5 @@ public class AuthController {
         String response = authService.logout(authHeader, authentication);
         return RestResponse.success(HttpStatus.OK.value(), "Logout successful", response);
     }
+
 }

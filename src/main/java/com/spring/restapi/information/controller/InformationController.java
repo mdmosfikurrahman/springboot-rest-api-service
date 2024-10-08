@@ -38,4 +38,5 @@ public class InformationController {
         service.deleteInformation(id);
         return RestResponse.success(HttpStatus.OK.value(), "Information deleted successfully", null);
     }
+
 }

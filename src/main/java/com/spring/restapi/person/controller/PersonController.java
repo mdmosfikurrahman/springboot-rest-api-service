@@ -38,4 +38,5 @@ public class PersonController {
         service.deletePerson(id);
         return RestResponse.success(HttpStatus.OK.value(), "Person deleted successfully", null);
     }
+
 }

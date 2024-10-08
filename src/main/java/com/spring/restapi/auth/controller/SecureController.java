@@ -36,4 +36,5 @@ public class SecureController {
     public RestResponse<String> searchUserByUsername(@RequestParam String username) {
         return RestResponse.success(HttpStatus.OK.value(), SUCCESS_MESSAGE, "Searching for user with username: " + username);
     }
+
 }

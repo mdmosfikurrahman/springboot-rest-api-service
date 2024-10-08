@@ -41,10 +41,10 @@ public class UserController {
         return RestResponse.success(HttpStatus.OK.value(), "Password updated successfully", response);
     }
 
-
     @DeleteMapping("/{id}")
     public RestResponse<Void> deleteUser(@PathVariable Long id) {
         service.deleteUser(id);
         return RestResponse.success(HttpStatus.OK.value(), "User deleted successfully", null);
     }
+
 }
